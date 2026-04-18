@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Gestion Financiere</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .stat-card h3 {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        .stat-card p {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a73e8;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .chart-container h2 {
+            color: #1a73e8;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .nav-btn {
+            display: inline-block;
+            background: #1a73e8;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .lang-switch {
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 5px;
+        }
+        .lang-btn {
+            padding: 6px 14px;
+            border: 2px solid white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            background: transparent;
+            color: white;
+        }
+        .lang-btn.active {
+            background: white;
+            color: #1a73e8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="lang-switch">
+    <button class="lang-btn active" onclick="setLang('fr')">FR</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+</div>
+
+<header>
+    <h1 id="titre">Tableau de Bord - Analyse Financiere</h1>
+    <p id="sous_titre">Statistiques descriptives des donnees collectees</p>
+</header>
+
+<div class="container">
+    <a href="index.html" class="nav-btn" id="btn_formulaire">Retour au formulaire</a>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3 id="label_total">Total repondants</h3>
+            <p id="total">--</p>
+        </div>
+        <div class="stat-card">
+            <h3 id="label_revenu_moyen">Revenu moyen</h3>
+            <p id="revenu_moyen">--</p>
+        </div>
+        <div class="stat-card">
+            <h3 id="label_epargne_moyenne">Epargne moyenne</h3>
+            <p id="epargne_moyenne">--</p>
+        </div>
+        <div class="stat-card">
+            <h3 id="label_dettes_moyennes">Dettes moyennes</h3>
+            <p id="dettes_moyennes">--</p>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <h2 id="titre_sexe">Repartition par Sexe</h2>
+        <canvas id="graphique_sexe" height="200"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h2 id="titre_depenses">Depenses Moyennes par Categorie (FCFA)</h2>
+        <canvas id="graphique_depenses" height="200"></canvas>
+    </div>
+
+    <div class="chart-container">
+        <h2 id="titre_revenus_epargne">Revenus vs Epargne</h2>
+        <canvas id="graphique_revenus" height="200"></canvas>
+    </div>
+</div>
+
+<footer>
+    <p id="footer_text">Analyse de donnees financieres au Cameroun par YASMINE</p>
+</footer>
+
+<script>
+var graphSexe = null;
+var graphDepenses = null;
+var graphRevenus = null;
+
+var trad = {
+    fr: {
+        titre: "Tableau de Bord - Analyse Financiere",
+        sous_titre: "Statistiques descriptives des donnees collectees",
+        btn_formulaire: "Retour au formulaire",
+        label_total: "Total repondants",
+        label_revenu_moyen: "Revenu moyen",
+        label_epargne_moyenne: "Epargne moyenne",
+        label_dettes_moyennes: "Dettes moyennes",
+        titre_sexe: "Repartition par Sexe",
+        titre_depenses: "Depenses Moyennes par Categorie (FCFA)",
+        titre_revenus_epargne: "Revenus vs Epargne",
+        footer_text: "Analyse de donnees financieres au Cameroun par YASMINE",
+        homme: "Homme",
+        femme: "Femme",
+        revenu: "Revenu moyen",
+        epargne: "Epargne moyenne",
+        depenses: ["Alimentation","Loyer","Transport","Sante","Scolarite","Electricite","Eau","Television","Internet"]
+    },
+    en: {
+        titre: "Dashboard - Financial Analysis",
+        sous_titre: "Descriptive statistics of collected data",
+        btn_formulaire: "Back to form",
+        label_total: "Total respondents",
+        label_revenu_moyen: "Average income",
+        label_epargne_moyenne: "Average savings",
+        label_dettes_moyennes: "Average debts",
+        titre_sexe: "Distribution by Gender",
+        titre_depenses: "Average Expenses by Category (FCFA)",
+        titre_revenus_epargne: "Income vs Savings",
+        footer_text: "Financial data analysis in Cameroon by YASMINE",
+        homme: "Male",
+        femme: "Female",
+        revenu: "Average income",
+        epargne: "Average savings",
+        depenses: ["Food","Rent","Transport","Health","School","Electricity","Water","Television","Internet"]
+    }
+};
+
+var langue = 'fr';
+
+function setLang(lang) {
+    langue = lang;
+    var t = trad[lang];
+    document.getElementById('titre').textContent = t.titre;
+    document.getElementById('sous_titre').textContent = t.sous_titre;
+    document.getElementById('btn_formulaire').textContent = t.btn_formulaire;
+    document.getElementById('label_total').textContent = t.label_total;
+    document.getElementById('label_revenu_moyen').textContent = t.label_revenu_moyen;
+    document.getElementById('label_epargne_moyenne').textContent = t.label_epargne_moyenne;
+    document.getElementById('label_dettes_moyennes').textContent = t.label_dettes_moyennes;
+    document.getElementById('titre_sexe').textContent = t.titre_sexe;
+    document.getElementById('titre_depenses').textContent = t.titre_depenses;
+    document.getElementById('titre_revenus_epargne').textContent = t.titre_revenus_epargne;
+    document.getElementById('footer_text').textContent = t.footer_text;
+    document.querySelectorAll('.lang-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelector('.lang-btn[onclick="setLang(\'' + lang + '\')"]').classList.add('active');
+    chargerStats();
+}
+
+function chargerStats() {
+    var t = trad[langue];
+
+    fetch('/api/statistiques')
+    .then(function(r) { return r.json(); })
+    .then(function(stats) {
+        document.getElementById('total').textContent = stats.total || 0;
+        document.getElementById('revenu_moyen').textContent = stats.revenu_moyen ? Math.round(stats.revenu_moyen).toLocaleString() + ' FCFA' : '--';
+        document.getElementById('epargne_moyenne').textContent = stats.epargne_moyenne ? Math.round(stats.epargne_moyenne).toLocaleString() + ' FCFA' : '--';
+        document.getElementById('dettes_moyennes').textContent = stats.dettes_moyennes ? Math.round(stats.dettes_moyennes).toLocaleString() + ' FCFA' : '--';
+
+        if (graphRevenus) graphRevenus.destroy();
+        graphRevenus = new Chart(document.getElementById('graphique_revenus'), {
+            type: 'bar',
+            data: {
+                labels: [t.revenu, t.epargne],
+                datasets: [{
+                    data: [Math.round(stats.revenu_moyen || 0), Math.round(stats.epargne_moyenne || 0)],
+                    backgroundColor: ['#1a73e8', '#34a853']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } }
+            }
+        });
+    });
+
+    fetch('/api/statistiques/sexe')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        var labels = data.map(function(d) {
+            if (d.sexe === 'Homme') return t.homme;
+            if (d.sexe === 'Femme') return t.femme;
+            return d.sexe;
+        });
+        if (graphSexe) graphSexe.destroy();
+        graphSexe = new Chart(document.getElementById('graphique_sexe'), {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data.map(function(d) { return d.total; }),
+                    backgroundColor: ['#1a73e8', '#ff6b9d', '#34a853']
+                }]
+            }
+        });
+    });
+
+    fetch('/api/statistiques/depenses')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        var valeurs = [
+            data.alimentation || 0,
+            data.loyer || 0,
+            data.transport || 0,
+            data.sante || 0,
+            data.scolarite || 0,
+            data.electricite || 0,
+            data.eau || 0,
+            data.television || 0,
+            data.internet || 0
+        ];
+        if (graphDepenses) graphDepenses.destroy();
+        graphDepenses = new Chart(document.getElementById('graphique_depenses'), {
+            type: 'bar',
+            data: {
+                labels: t.depenses,
+                datasets: [{
+                    label: 'FCFA',
+                    data: valeurs,
+                    backgroundColor: '#1a73e8'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } }
+            }
+        });
+    });
+}
+
+chargerStats();
+</script>
+
+</body>
+</html>

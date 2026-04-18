@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enquete - Gestion Financiere</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .lang-switch {
+            position: fixed;
+            top: 15px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 5px;
+        }
+        .lang-btn {
+            padding: 6px 14px;
+            border: 2px solid white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            background: transparent;
+            color: white;
+        }
+        .lang-btn.active {
+            background: white;
+            color: #1a73e8;
+        }
+        .montant-field {
+            display: none;
+            margin-top: 10px;
+        }
+        .montant-field.visible {
+            display: block;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        .success-message {
+            display: none;
+            background-color: #e6f4ea;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<div class="lang-switch">
+    <button class="lang-btn active" onclick="setLang('fr')">FR</button>
+    <button class="lang-btn" onclick="setLang('en')">EN</button>
+</div>
+
+<header>
+    <h1 id="titre">Enquete sur la Gestion Financiere des Menages au Cameroun</h1>
+    <p id="sous_titre">Vos donnees sont anonymes et utilisees uniquement a des fins d analyse</p>
+</header>
+
+<div class="container">
+<form id="formulaire">
+
+    <!-- Infos personnelles -->
+    <div class="card">
+        <h2 id="titre_infos">Informations Personnelles</h2>
+        <div class="form-group">
+            <label id="label_age">Age</label>
+            <input type="number" name="age" min="15" max="100" required>
+        </div>
+        <div class="form-group">
+            <label id="label_sexe">Sexe</label>
+            <select name="sexe" required>
+                <option value="">-- Choisir --</option>
+                <option id="opt_homme" value="Homme">Homme</option>
+                <option id="opt_femme" value="Femme">Femme</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label id="label_ville">Ville</label>
+            <input type="text" name="ville" placeholder="Ex: Yaounde, Douala..." required>
+        </div>
+    </div>
+
+    <!-- Revenus -->
+    <div class="card">
+        <h2 id="titre_revenus">Revenus</h2>
+        <div class="form-group">
+            <label id="label_revenu">Revenu mensuel approximatif (FCFA)</label>
+            <input type="number" name="revenu" min="0" required>
+        </div>
+    </div>
+
+    <!-- Depenses -->
+    <div class="card">
+        <h2 id="titre_depenses">Depenses Mensuelles</h2>
+
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="cb_alimentation" onchange="toggleMontant('alimentation', this)">
+                <label id="label_alimentation" for="cb_alimentation">Payez-vous des depenses d alimentation ?</label>
+            </div>
+            <div class="montant-field" id="montant_alimentation">
+                <input type="number" name="alimentation" min="0" placeholder="Montant en FCFA">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="cb_loyer" onchange="toggleMontant('loyer', this)">
+                <label id="label_loyer" for="cb_loyer">Payez-vous un loyer ?</label>
+            </div>
+            <div class="montant-field" id="montant_loyer">
+                <input type="number" name="loyer" min="0" placeholder="Montant en FCFA">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="cb_transport" onchange="toggleMontant('transport', this)">
+                <label id="label_transport" for="cb_transport">Payez-vous des frais de transport ?</label>
+            </div>
+            <div class="montant-field" id="montant_transport">
+                <input type="number" name="transport" min="0" placeholder="Montant en FCFA">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="cb_sante" onchange="toggleMontant('sante', this)">
+                <label id="label_sante" for="cb_sante">Payez-vous des frais de sante ?</label>
+            </div>
+            <div class="montant-field" id="montant_sante">
+                <input type="number" name="sante" min="0" placeholder="Montant en FCFA">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="cb_scolarite" onchange="toggleMontant('scolarite', this)">
+                <label id="label_scolarite" for="cb_scolarite">Payez-vous des frais de scolarite ?</label>
+            </div>
+            <div class="montant-field" id="montant_scolarite">
+                <input type="number" name="scolarite" min="0" placeholder="Montant en FCFA">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="cb_electricite" onchange="toggleMontant('electricite', this)">
+                <label id="label_electricite" for="cb_electricite">Payez-vous une facture d electricite ?</label>
+            </div>
+            <div class="montant-field" id="montant_electricite">
+                <input type="number" name="electricite" min="0" placeholder="Montant en FCFA">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="cb_eau" onchange="toggleMontant('eau', this)">
+                <label id="label_eau" for="cb_eau">Payez-vous une facture d eau ?</label>
+            </div>
+            <div class="montant-field" id="montant_eau">
+                <input type="number" name="eau" min="0" placeholder="Montant en FCFA">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="cb_television" onchange="toggleMontant('television', this)">
+                <label id="label_television" for="cb_television">Payez-vous une facture de television ?</label>
+            </div>
+            <div class="montant-field" id="montant_television">
+                <input type="number" name="television" min="0" placeholder="Montant en FCFA">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="cb_internet" onchange="toggleMontant('internet', this)">
+                <label id="label_internet" for="cb_internet">Payez-vous une connexion internet ?</label>
+            </div>
+            <div class="montant-field" id="montant_internet">
+                <input type="number" name="internet" min="0" placeholder="Montant en FCFA">
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Epargne -->
+    <div class="card">
+        <h2 id="titre_epargne">Epargne</h2>
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="cb_epargne" onchange="toggleMontant('epargne', this)">
+                <label id="label_epargne" for="cb_epargne">Epargnez-vous chaque mois ?</label>
+            </div>
+            <div class="montant-field" id="montant_epargne">
+                <input type="number" name="epargne" min="0" placeholder="Montant en FCFA">
+            </div>
+        </div>
+    </div>
+
+    <!-- Dettes -->
+    <div class="card">
+        <h2 id="titre_dettes">Dettes</h2>
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="cb_dettes" onchange="toggleMontant('dettes', this)">
+                <label id="label_dettes" for="cb_dettes">Avez-vous des dettes ?</label>
+            </div>
+            <div class="montant-field" id="montant_dettes">
+                <input type="number" name="dettes" min="0" placeholder="Montant en FCFA">
+            </div>
+        </div>
+    </div>
+
+    <button type="button" id="btn_submit" onclick="soumettre()">Soumettre mes reponses</button>
+    <div class="success-message" id="success">
+        Merci ! Vos reponses ont ete enregistrees avec succes !
+    </div>
+
+</form>
+</div>
+
+<footer>
+    <p id="footer_text">Analyse de donnees financieres au Cameroun par YASMINE</p>
+</footer>
+
+<script>
+const t = {
+    fr: {
+        titre: "Enquete sur la Gestion Financiere des Menages au Cameroun",
+        sous_titre: "Vos donnees sont anonymes et utilisees uniquement a des fins d analyse",
+        titre_infos: "Informations Personnelles",
+        label_age: "Age",
+        label_sexe: "Sexe",
+        opt_homme: "Homme",
+        opt_femme: "Femme",
+        label_ville: "Ville",
+        titre_revenus: "Revenus",
+        label_revenu: "Revenu mensuel approximatif (FCFA)",
+        titre_depenses: "Depenses Mensuelles",
+        label_alimentation: "Payez-vous des depenses d alimentation ?",
+        label_loyer: "Payez-vous un loyer ?",
+        label_transport: "Payez-vous des frais de transport ?",
+        label_sante: "Payez-vous des frais de sante ?",
+        label_scolarite: "Payez-vous des frais de scolarite ?",
+        label_electricite: "Payez-vous une facture d electricite ?",
+        label_eau: "Payez-vous une facture d eau ?",
+        label_television: "Payez-vous une facture de television ?",
+        label_internet: "Payez-vous une connexion internet ?",
+        titre_epargne: "Epargne",
+        label_epargne: "Epargnez-vous chaque mois ?",
+        titre_dettes: "Dettes",
+        label_dettes: "Avez-vous des dettes ?",
+        btn_submit: "Soumettre mes reponses",
+        success: "Merci ! Vos reponses ont ete enregistrees avec succes !",
+        footer_text: "Analyse de donnees financieres au Cameroun par YASMINE"
+    },
+    en: {
+        titre: "Survey on Household Financial Management in Cameroon",
+        sous_titre: "Your data is anonymous and used only for analysis purposes",
+        titre_infos: "Personal Information",
+        label_age: "Age",
+        label_sexe: "Gender",
+        opt_homme: "Male",
+        opt_femme: "Female",
+        label_ville: "City",
+        titre_revenus: "Income",
+        label_revenu: "Approximate monthly income (FCFA)",
+        titre_depenses: "Monthly Expenses",
+        label_alimentation: "Do you pay for food expenses?",
+        label_loyer: "Do you pay rent?",
+        label_transport: "Do you pay transport fees?",
+        label_sante: "Do you pay health expenses?",
+        label_scolarite: "Do you pay school fees?",
+        label_electricite: "Do you pay an electricity bill?",
+        label_eau: "Do you pay a water bill?",
+        label_television: "Do you pay a television bill?",
+        label_internet: "Do you pay for internet connection?",
+        titre_epargne: "Savings",
+        label_epargne: "Do you save money every month?",
+        titre_dettes: "Debts",
+        label_dettes: "Do you have any debts?",
+        btn_submit: "Submit my answers",
+        success: "Thank you! Your answers have been recorded successfully!",
+        footer_text: "Financial data analysis in Cameroon by YASMINE"
+    }
+};
+
+let langue = 'fr';
+
+function setLang(lang) {
+    langue = lang;
+    const tr = t[lang];
+    document.getElementById('titre').textContent = tr.titre;
+    document.getElementById('sous_titre').textContent = tr.sous_titre;
+    document.getElementById('titre_infos').textContent = tr.titre_infos;
+    document.getElementById('label_age').textContent = tr.label_age;
+    document.getElementById('label_sexe').textContent = tr.label_sexe;
+    document.getElementById('opt_homme').textContent = tr.opt_homme;
+    document.getElementById('opt_femme').textContent = tr.opt_femme;
+    document.getElementById('label_ville').textContent = tr.label_ville;
+    document.getElementById('titre_revenus').textContent = tr.titre_revenus;
+    document.getElementById('label_revenu').textContent = tr.label_revenu;
+    document.getElementById('titre_depenses').textContent = tr.titre_depenses;
+    document.getElementById('label_alimentation').textContent = tr.label_alimentation;
+    document.getElementById('label_loyer').textContent = tr.label_loyer;
+    document.getElementById('label_transport').textContent = tr.label_transport;
+    document.getElementById('label_sante').textContent = tr.label_sante;
+    document.getElementById('label_scolarite').textContent = tr.label_scolarite;
+    document.getElementById('label_electricite').textContent = tr.label_electricite;
+    document.getElementById('label_eau').textContent = tr.label_eau;
+    document.getElementById('label_television').textContent = tr.label_television;
+    document.getElementById('label_internet').textContent = tr.label_internet;
+    document.getElementById('titre_epargne').textContent = tr.titre_epargne;
+    document.getElementById('label_epargne').textContent = tr.label_epargne;
+    document.getElementById('titre_dettes').textContent = tr.titre_dettes;
+    document.getElementById('label_dettes').textContent = tr.label_dettes;
+    document.getElementById('btn_submit').textContent = tr.btn_submit;
+    document.getElementById('footer_text').textContent = tr.footer_text;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.lang-btn[onclick="setLang(\'' + lang + '\')"]').classList.add('active');
+}
+
+function toggleMontant(nom, checkbox) {
+    var div = document.getElementById('montant_' + nom);
+    if (checkbox.checked) {
+        div.classList.add('visible');
+    } else {
+        div.classList.remove('visible');
+        var input = div.querySelector('input');
+        if (input) input.value = '';
+    }
+}
+
+function soumettre() {
+    var age = document.querySelector('[name="age"]').value;
+    var sexe = document.querySelector('[name="sexe"]').value;
+    var ville = document.querySelector('[name="ville"]').value;
+    var revenu = document.querySelector('[name="revenu"]').value;
+
+    if (!age || !sexe || !ville || !revenu) {
+        alert(langue === 'fr' ? 'Veuillez remplir tous les champs obligatoires.' : 'Please fill in all required fields.');
+        return;
+    }
+
+    var depenses = ['alimentation', 'loyer', 'transport', 'sante', 'scolarite', 'electricite', 'eau', 'television', 'internet', 'epargne', 'dettes'];
+    var data = {
+        age: parseInt(age),
+        sexe: sexe,
+        ville: ville,
+        revenu: parseFloat(revenu)
+    };
+
+    depenses.forEach(function(dep) {
+        var cb = document.getElementById('cb_' + dep);
+        var input = document.querySelector('[name="' + dep + '"]');
+        data['paye_' + dep] = cb.checked ? 1 : 0;
+        data[dep] = cb.checked && input.value ? parseFloat(input.value) : 0;
+    });
+
+    fetch('/api/repondants', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(result) {
+        document.getElementById('success').style.display = 'block';
+        document.getElementById('formulaire').reset();
+        document.querySelectorAll('.montant-field').forEach(function(m) {
+            m.classList.remove('visible');
+        });
+    })
+    .catch(function(err) {
+        alert(langue === 'fr' ? 'Erreur lors de la soumission !' : 'Submission error!');
+    });
+}
+</script>
+
+</body>
+</html>
